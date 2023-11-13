@@ -3,7 +3,7 @@ package table
 import (
 	"reflect"
 
-	"go-gorm/core/tool"
+	"github.com/daimayun/go-gorm/tool"
 )
 
 // getEngine Get model struct table engine

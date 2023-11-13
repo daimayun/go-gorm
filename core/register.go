@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"go-gorm/core/table"
-	"go-gorm/core/tool"
+	"github.com/daimayun/go-gorm/table"
+	"github.com/daimayun/go-gorm/tool"
 )
 
 // RegisterModel 注册模型
