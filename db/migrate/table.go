@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"time"
 
 	"github.com/daimayun/go-gorm/db"
 )
@@ -67,6 +68,40 @@ func TableDDL(dst interface{}) (str string, err error) {
 		return
 	}
 	err = errors.New("table [" + tableName + "] ddl not found")
+	return
+}
+
+type TableInfoData struct {
+	Name          string     `json:"Name"`
+	Engine        string     `json:"Engine"`
+	Version       string     `json:"Version"`
+	RowFormat     string     `json:"Row_format"`
+	Rows          int64      `json:"Rows"`
+	AvgRowLength  int64      `json:"Avg_row_length"`
+	DataLength    int64      `json:"Data_length"`
+	MaxDataLength int64      `json:"Max_data_length"`
+	IndexLength   int64      `json:"Index_length"`
+	DataFree      int64      `json:"Data_free"`
+	AutoIncrement int64      `json:"Auto_increment"`
+	CreateTime    *time.Time `json:"Create_time"`
+	UpdateTime    *time.Time `json:"Update_time"`
+	CheckTime     *time.Time `json:"Check_time"`
+	Collation     string     `json:"Collation"`
+	Checksum      string     `json:"Checksum"`
+	CreateOptions string     `json:"Create_options"`
+	Comment       string     `json:"Comment"`
+}
+
+func TableInfo(dst interface{}) (data TableInfoData, err error) {
+	var tableName string
+	if tableName, err = getTableName(dst); err != nil {
+		return
+	}
+	var val map[string]interface{}
+	if err = db.DB.Raw(fmt.Sprintf("SHOW TABLE STATUS LIKE '%s'", tableName)).Scan(&val).Error; err != nil {
+		return
+	}
+	fmt.Println(val)
 	return
 }
 
