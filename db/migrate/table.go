@@ -11,6 +11,11 @@ func GetTableList() ([]string, error) {
 	return db.DB.Migrator().GetTables()
 }
 
+// CreateTable 创建表
+func CreateTable(dst ...interface{}) error {
+	return db.DB.Migrator().CreateTable(dst...)
+}
+
 // HasTable 表是否存在 [表名 string | model struct ptr]
 func HasTable(dst interface{}) bool {
 	return db.DB.Migrator().HasTable(dst)
