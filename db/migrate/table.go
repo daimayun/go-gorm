@@ -1,6 +1,7 @@
 package migrate
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 
 	"github.com/daimayun/go-gorm/db"
@@ -91,5 +92,21 @@ func ModifyTable(dst interface{}, options ...TableOption) (err error) {
 	for _, option := range options {
 		option(opt)
 	}
+	var tableName string
+	// 表名处理
+	if v, ok := dst.(string); ok {
+		tableName = v
+	} else {
+		stmt := &gorm.Statement{DB: db.DB}
+		if err = stmt.Parse(dst); err == nil {
+			tableName = stmt.Table
+		} else {
+			return err
+		}
+	}
+
+	// 修改表名
+	fmt.Sprintf("ALTER TABLE `%s` RENAME `%s`;", tableName, opt.name)
+
 	return
 }
