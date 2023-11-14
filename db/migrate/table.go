@@ -16,3 +16,8 @@ func HasTable(dst interface{}) bool {
 func DropTable(dst ...interface{}) error {
 	return db.DB.Migrator().DropTable(dst...)
 }
+
+// RenameTable 重命名表名
+func RenameTable(oldName, newName interface{}) error {
+	return db.DB.Migrator().RenameTable(oldName, newName)
+}
