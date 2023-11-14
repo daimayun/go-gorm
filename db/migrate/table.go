@@ -11,3 +11,8 @@ func GetTableList() ([]string, error) {
 func HasTable(dst interface{}) bool {
 	return db.DB.Migrator().HasTable(dst)
 }
+
+// DropTable 删除数据库表
+func DropTable(dst ...interface{}) error {
+	return db.DB.Migrator().DropTable(dst...)
+}
