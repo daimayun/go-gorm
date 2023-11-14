@@ -1,6 +1,10 @@
 package migrate
 
-import "github.com/daimayun/go-gorm/db"
+import (
+	"gorm.io/gorm"
+
+	"github.com/daimayun/go-gorm/db"
+)
 
 // GetTableList 获取数据库表列表
 func GetTableList() ([]string, error) {
@@ -20,4 +24,8 @@ func DropTable(dst ...interface{}) error {
 // RenameTable 重命名表名
 func RenameTable(oldName, newName interface{}) error {
 	return db.DB.Migrator().RenameTable(oldName, newName)
+}
+
+func TableType(dst interface{}) (gorm.TableType, error) {
+	return db.DB.Migrator().TableType(dst)
 }
