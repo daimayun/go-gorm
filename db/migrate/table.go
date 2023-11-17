@@ -3,6 +3,7 @@ package migrate
 import (
 	"errors"
 	"fmt"
+	"github.com/daimayun/go-gorm/table/engine"
 	"gorm.io/gorm"
 	"time"
 
@@ -126,9 +127,9 @@ func WithNewTableName(tableName string) TableOption {
 	}
 }
 
-func WithEngine(engine string) TableOption {
+func WithEngine(engine engine.Engine) TableOption {
 	return func(option *tableOption) {
-		option.engine = engine
+		option.engine = string(engine)
 	}
 }
 
