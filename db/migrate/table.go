@@ -152,8 +152,8 @@ func WithComment(comment string) TableOption {
 	}
 }
 
-// ModifyTable 修改表信息
-func ModifyTable(dst interface{}, options ...TableOption) (err error) {
+// AlterTable 修改表信息
+func AlterTable(dst interface{}, options ...TableOption) (err error) {
 	if len(options) == 0 {
 		return
 	}
