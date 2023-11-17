@@ -121,7 +121,7 @@ type tableOption struct {
 
 type TableOption func(*tableOption)
 
-func WithNewTableName(tableName string) TableOption {
+func WithTableRename(tableName string) TableOption {
 	return func(option *tableOption) {
 		option.tableName = tableName
 	}
