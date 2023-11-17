@@ -43,6 +43,10 @@ func getTableName(dst interface{}) (tableName string, err error) {
 	v, ok := dst.(string)
 	if ok {
 		tableName = v
+		if tableName == "" {
+			err = errors.New("表名不能为空")
+			return
+		}
 		return
 	}
 	stmt := &gorm.Statement{DB: db.DB}
@@ -106,7 +110,7 @@ func TableInfo(dst interface{}) (data TableInfoData, err error) {
 }
 
 type tableOption struct {
-	name          string
+	tableName     string
 	engine        string
 	autoIncrement uint64
 	charset       string
@@ -116,9 +120,9 @@ type tableOption struct {
 
 type TableOption func(*tableOption)
 
-func WithTableName(tableName string) TableOption {
+func WithNewTableName(tableName string) TableOption {
 	return func(option *tableOption) {
-		option.name = tableName
+		option.tableName = tableName
 	}
 }
 
@@ -153,29 +157,71 @@ func WithComment(comment string) TableOption {
 }
 
 // AlterTable 修改表信息
+/*
+	ALTER TABLE `abc` RENAME `abc123`, ENGINE = 'MyISAM', AUTO_INCREMENT = 10086, CHARSET = utf8mb4, COLLATE = utf8mb4_general_ci, COMMENT 'abc123表';
+*/
 func AlterTable(dst interface{}, options ...TableOption) (err error) {
 	if len(options) == 0 {
 		return
 	}
+
+	var tableName string
+	if tableName, err = getTableName(dst); err != nil {
+		return
+	}
+
 	opt := &tableOption{}
 	for _, option := range options {
 		option(opt)
 	}
-	var tableName string
-	// 表名处理
-	if v, ok := dst.(string); ok {
-		tableName = v
-	} else {
-		stmt := &gorm.Statement{DB: db.DB}
-		if err = stmt.Parse(dst); err == nil {
-			tableName = stmt.Table
-		} else {
-			return err
-		}
+
+	exec := false
+	sql := fmt.Sprintf("ALTER TABLE `%s`", tableName)
+	sign := ""
+
+	if opt.tableName != "" && opt.tableName != tableName {
+		sql += fmt.Sprintf("%s RENAME `%s`", sign, opt.tableName)
+		sign = ","
+		exec = true
 	}
 
-	// 修改表名
-	fmt.Sprintf("ALTER TABLE `%s` RENAME `%s`;", tableName, opt.name)
+	if opt.engine != "" {
+		sql += fmt.Sprintf("%s ENGINE = '%s'", sign, opt.engine)
+		sign = ","
+		exec = true
+	}
+
+	if opt.autoIncrement > 0 {
+		sql += fmt.Sprintf("%s AUTO_INCREMENT = %d", sign, opt.autoIncrement)
+		sign = ","
+		exec = true
+	}
+
+	if opt.charset != "" {
+		sql += fmt.Sprintf("%s CHARSET = %s", sign, opt.charset)
+		sign = ","
+		exec = true
+	}
+
+	if opt.collate != "" {
+		sql += fmt.Sprintf("%s COLLATE = %s", sign, opt.collate)
+		sign = ","
+		exec = true
+	}
+
+	if opt.comment != "" {
+		sql += fmt.Sprintf("%s COMMENT = '%s'", sign, opt.comment)
+		sign = ","
+		exec = true
+	}
+
+	if !exec {
+		return
+	}
+
+	if err = db.DB.Exec(sql).Error; err != nil {
+		return
+	}
 
 	return
 }
